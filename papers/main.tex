@@ -1,0 +1,43 @@
+\title{A Very Simple \LaTeXe{} Template}
+
+\documentclass[12pt]{article}
+\input{preamble}
+
+\begin{document}
+\maketitle
+
+%\begin{abstract}
+In this work we use neural networks to synthesis DSP code from audio examples.
+%\end{abstract}
+
+\section{Overview}
+
+Our system has three main stages.
+
+First, we use DDSP learning~\cite{} to create a neural network model of the DSP transformation demonstrated by the input-output audio files.
+
+One of the key contributions of DDSP is that every model is built with a graph structure of \textit{Processors}.
+Each Processor in a structure represents a ``core'' DSP element, such as a additive synthesis, noise, or reverb.
+The graph represents the signal flow of the audio signal through DSP elements.
+This graph is called a \textit{ProcessorGroup}.
+The DDSP system works by fixing a ProcessorGroup, $\processorGroup$, then training that over a dataset.
+This yields a trained model $\trainedModel$.
+
+With a trained model, $\trainedModel :: Audio \to Audio$, we want to extract concrete code, $\codeModel :: Audio \to Audio$ that approximates the transformation of the trained model.
+In our work, we generate code in the DSP language SuperCollider, thought any common DSP language follows the same pattern.
+To do this, we look at the underlying structure of $\trainedModel$.
+
+Because the set of Processors is small (less than 10), we map each Processor in DDSP to a block of template code in SuperCollider.
+To connect the modules, we replicate the graph structure of the ProcessingGroup in SuperCollider as the signal flow incode.
+
+We then must extract...
+
+
+
+
+
+
+\bibliographystyle{abbrv}
+\bibliography{main}
+
+\end{document}
