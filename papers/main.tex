@@ -19,8 +19,8 @@ First, we use DDSP learning~\cite{} to create a neural network model of the DSP 
 One of the key ideas of DDSP is that every model is built with a directed acyclic graph, called a \textit{ProcessorGroup}.
 In this graph. nodes are \textit{Processors} and the edges are the audio signal flow between Processors.
 A Processor is a ``core'' DSP element, such as a additive synthesis, noise, or reverb.
-A $Processor :: \reals^n \to * \to Audio$ takes a set of parameters in $\reals^n$, and generates an Audio signal.
-A Processor may consume an Audio signal, a collection of Audio signals, or be a generator, and consume no signal.
+A $Processor :: SF\ (\reals^n, *)\ Audio$ is a Signal Function ($SF$, see~\cite{nilsson2002functional} for more on Signal Functions \markk{will need a background section on this}) takes a set of parameters in $\reals^n$ over time, and generates an Audio signal over time.
+A Processor additionally consumes (the * in the second part of the tuple) an Audio signal, a collection of Audio signals, or be a generator, and consume no signal.
 For a Processor \processor, we use the notation $|\processor|$ to denote the dimension $n$ of the parameters $\reals^n$ for \processor.
 
 The DDSP system works by fixing a ProcessorGroup, $\processorGroup$, then training that over a dataset.
@@ -31,9 +31,15 @@ This yields a trained model $\trainedModel$.
 
 With a trained model, $\trainedModel :: Audio \to Audio$, we want to extract concrete code, $\codeModel :: Audio \to Audio$ that approximates the transformation of the trained model.
 In our work, we generate code in the DSP language SuperCollider, though any common DSP language follows the same pattern.
-To do this, we look at the underlying structure of $\trainedModel$.
+To do this, we generate code that mirrors the underlying structure of $\trainedModel$.
 
 Because the set of possible Processors is small (Additive synthesis, Low Pass Filter, etc), we map each Processor in DDSP to a block of template code in SuperCollider.
+The representation of a processor in code, $\codeProcessor :: \reals^n \to SF\ *\ Audio$, has a similar type signature as the Processor in DDSP.
+In \codeProcessor however, we do not continuously consume a parameters that change over time.
+Instead \codeProcessor must take a single fixed set of parameters that it uses to generate its audio output.
+
+Our task is then the extract a concrete set of parameters for \codeProcessor from the time-varying parameters of \processor.
+
 To connect the modules, we replicate the graph structure of the ProcessingGroup in SuperCollider as the signal flow incode.
 
 We then must extract...
@@ -41,6 +47,6 @@ We then must extract...
 
 
 \bibliographystyle{abbrv}
-\bibliography{main}
+\bibliography{bibliography}
 
 \end{document}
