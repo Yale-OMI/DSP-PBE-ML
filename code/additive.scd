@@ -1,30 +1,17 @@
-
-
-
 (
-var midi = Prand([60, 67, 69, 71, 72], inf).asStream;
-var dur = Pseq([1,1,1,1,1,1], 1).asStream;
-var t = TempoClock.new(30);
 
-SynthDef(\additive, { |out, freq = 440, sustain = 0.1, amp = 0.5|
-    var sig;
-    sig = Mix(SinOsc.ar(freq*[0.5,1,1.19,1.56,2,2.51,2.66,3.01,4.1],0,0.1));
-	sig = sig * EnvGen.kr(Env.adsr(0.01, 0.03, sustain, 0.1), doneAction: Done.freeSelf);
-    Out.ar(out, sig ! 2)
+SynthDef(\additive, { |out, freq = 440, partials, amps|
+    var sig, env;
+    sig = Mix(SinOsc.ar(freq*partials,0,0.1*amps));
+	env = EnvGen.kr(Env.perc, doneAction: Done.freeSelf);
+	Out.ar(out, (sig * env) ! 2)
 }).add;
 
-r = Task({
-    var delta;
-    while {
-        delta = dur.next;
-        delta.notNil
-    } {
-        Synth(\additive, [freq: midi.next.midicps]);
-        delta.yield;
-    }
-}).play(quant: t.beats);
+r = Pbind(
+	\instrument, \additive,
+	\partials, [0.5,1,1.19,1.56,2,2.51,2.66,3.01,4.1],
+	\amps, [0.25,1,0.8,0.5,0.9,0.4,0.3,0.6,0.1],
+	\midinote, Prand([60, 67, 69, 71, 72], inf).asStream,
+	\dur, Pseq(Array.fill(12,{0.2}), 1)
+).play;
 )
-
-Synth(\additive);
-
-{SinOsc.ar()}.play
